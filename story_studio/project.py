@@ -55,7 +55,8 @@ TEMPLATE_README = u"""这个文件夹里放四样东西，名字要一模一样�
   2. 用你哄孩子的那种口气，放慢、放软，别端着念。
   3. 别超过 28 秒。念错了接着说，磕巴和笑场都留着，那才像你。
 
-放好之后，双击上一层的「启动.bat」，按提示走。
+放好之后，双击上一层的「一键环境.bat」查一遍环境，
+再双击「启动.bat」，按提示走。
 """
 
 
@@ -156,6 +157,8 @@ def read_ref_text(cfg):
 def read_music(cfg):
     """配乐：工程目录下的「配乐.*」或「配乐/」目录里的全部音频。"""
     p = cfgmod.project_dir(cfg)
+    if not os.path.isdir(p):
+        return []                # 工程目录还没建，别在这里抛 FileNotFoundError
     hits = []
     d = os.path.join(p, u"配乐")
     if os.path.isdir(d):
@@ -203,11 +206,20 @@ def prep_reference(cfg):
 
 
 def duration(path):
-    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
-                        "format=duration", "-of",
-                        "default=nw=1:nk=1", path],
-                       capture_output=True, text=True,
-                       encoding="utf-8", errors="replace")
+    """量时长。ffprobe 不在 PATH 上就返回 0.0，不抛异常。
+
+    为什么这里要吞掉异常：环境还没装好的机器上，一键环境也要能跑通，
+    它得先把「缺 ffmpeg」这句话说出来。如果这里直接抛 FileNotFoundError，
+    用户看到的是一段堆栈，而不是「去装 ffmpeg」。
+    """
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+                            "format=duration", "-of",
+                            "default=nw=1:nk=1", path],
+                           capture_output=True, text=True,
+                           encoding="utf-8", errors="replace")
+    except OSError:
+        return 0.0
     try:
         return float((r.stdout or u"0").strip())
     except ValueError:

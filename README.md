@@ -38,7 +38,7 @@
 | | 要求 |
 |---|---|
 | 显卡 | **N 卡**，6 GB 显存起步（本项目按 16 GB 实测：整篇峰值 **4.43 GB**） |
-| 磁盘 | **约 12 GB** 空闲（模型 5.05 GB ＋ PyTorch 2.5 GB ＋ 依赖 1.2 GB ＋ 中间文件） |
+| 磁盘 | **约 11 GB** 空闲（模型 5.05 GB ＋ PyTorch 落地 4.2 GB ＋ 依赖 1.2 GB） |
 | 系统 | Windows 10 / 11（双击入口是 Windows 的，macOS / Linux 用 `./start.sh`） |
 | 其余 | **Python 3.10~3.12**；**ffmpeg**（合成与校验必需） |
 | 时间 | 模型加载 **16 秒**；出旁白 **RTF 0.536**（8 分钟的故事约 4 分半） |
@@ -67,19 +67,38 @@
 不想自己写故事，可以用示例：`python app.py --example`，会把一份
 1285 字的故事和配套的参考文本放进「我的故事」。
 
-### 2. 双击「启动.bat」
+### 2. 双击「一键环境.bat」
 
-第一次先选 `0` 装环境。它会做四件事，你只要等：
+第一次跑，先双击这个。它先查一遍现状，再决定做什么：
+
+```
+  环境
+    项目            状态  说明
+    启动器 Python   OK    3.12.7
+    ffmpeg          OK    7.1
+    CosyVoice 源码  缺    要拉下来，约 50 MB
+    PyTorch         OK    torch 2.4.0+cu121  CUDA 可用  RTX 4080 16.0 GB
+    模型            缺    缺 6 项，要下 4.13 GB
+```
+
+全都齐了，它只说一句「可以开工」，一个字节都不下。缺东西时它先把缺什么、
+要下多少、磁盘够不够讲清楚，按了回车才开始：
 
 ```
 1/5  拉 CosyVoice 源码（约 50 MB）
 2/5  建独立环境（不污染你机器上的 Python）
-3/5  装 PyTorch 2.4.0 + 依赖（约 3.7 GB）
-4/5  装 openai-whisper
+3/5  装 PyTorch 2.4.0（下载 2.4 GB，落地 4.2 GB）
+4/5  装推理依赖 ＋ openai-whisper（约 1.2 GB）
 5/5  下模型（5.05 GB，只拉推理要用的）
 ```
 
-装完自动跑一遍自检。
+装完它自己再查一遍，缺的那几行变成 OK 才算完。中途断了直接重跑，
+装过的跳过，没下完的接着下。`启动.bat` 菜单里的 `0` 是同一个东西。
+
+不想在窗口里按回车：`python app.py --setup --yes`。
+
+它不替你装 Python 和 ffmpeg，这两样要动系统。缺 ffmpeg 时它会把
+`winget install Gyan.FFmpeg` 这条命令打给你，装完重开窗口再跑一次。
 
 ### 3. 菜单上三步走
 
@@ -161,14 +180,17 @@
 
 ```
 用你的声音读睡前故事/
-├── 启动.bat              双击这个
+├── 一键环境.bat          双击这个：先查，缺什么装什么
+├── 启动.bat              双击这个出菜单
 ├── 启动-自检.bat         只看缺什么，不装东西
-├── app.py                入口（--check / --install / --tts / --mix / --all）
+├── setup.sh              macOS / Linux 的一键环境
+├── app.py                入口（--setup / --check / --install / --tts / --mix / --all）
 ├── config.json           所有可调项，首次运行自动生成
 ├── config.local.json     本机的解释器路径、CosyVoice 装在哪（不进仓库）
 ├── requirements.txt      依赖清单（与上游有三处不同，每处都写了原因）
 ├── story_studio/         核心代码
 │   ├── config.py         路径、默认值、解释器探测
+│   ├── setup.py          一键环境（先查，缺什么装什么，装完再查）
 │   ├── envcheck.py       自检（只看在不在、够不够大）
 │   ├── installer.py      装环境（源码 / 环境 / PyTorch / 依赖 / 模型）
 │   ├── project.py        工程目录、素材校验、录音转码

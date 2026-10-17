@@ -2,6 +2,7 @@
 """用你的声音读睡前故事 —— 入口。
 
 直接双击「启动.bat」最省事；想写脚本就带参数：
+    python app.py --setup              一键：先查，缺什么装什么，装完再查
     python app.py --check              只看缺什么，不装东西
     python app.py --install            装环境
     python app.py --tts                出旁白
@@ -12,6 +13,7 @@
     python app.py --example            把示例工程拷进「我的故事」
     python app.py --project 别的目录   换工程目录
     python app.py --install --cpu      没 N 卡时装 CPU 版 PyTorch
+    python app.py --setup --yes        一键装，中途不问
 """
 import argparse
 import os
@@ -21,7 +23,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from story_studio import (config as cfgmod, envcheck, installer, mix,
-                          project, tts, ui, verify)
+                          project, setup, tts, ui, verify)
 
 BANNER = u"""
   用你的声音读睡前故事
@@ -34,7 +36,7 @@ def _menu(cfg):
     ui.kv(u"工程目录", cfgmod.project_dir(cfg))
     ui.kv(u"项目目录", cfgmod.ROOT)
     ui.say(u"")
-    ui.say(u"   0  装环境（第一次跑，要下 8 GB 上下）")
+    ui.say(u"   0  一键环境（先查，缺什么装什么；第一次要下 8 GB 上下）")
     ui.say(u"   1  出旁白（用你的声音念整篇）")
     ui.say(u"   2  合成成片（垫音乐、加引子和收尾）")
     ui.say(u"   3  出厂校验（一条一条量过去）")
@@ -97,9 +99,10 @@ def interactive(cfg):
         if c in (u"q", u"quit", u"exit"):
             return 0
         if c == u"0":
-            rc = installer.run(cfg)
-            if rc == 0:
-                envcheck.run(cfg)
+            # 走一键：先查再装，装完再查。比直接调安装器只多一件小事，
+            # 但很重要：环境已经齐的人按 0 只会看到一份清单，
+            # 不会被莫名其妙地问「要不要下 8 GB」。
+            rc = setup.run(cfg)
         elif c == u"1":
             rc = tts.run(cfg)
         elif c == u"2":
@@ -140,6 +143,8 @@ def main():
     ui.setup()
     ap = argparse.ArgumentParser(add_help=True, description=u"用你的声音读睡前故事")
     ap.add_argument("--check", action="store_true", help=u"只自检")
+    ap.add_argument("--setup", action="store_true", help=u"一键：先查，缺什么装什么")
+    ap.add_argument("--yes", action="store_true", help=u"一键装时不问，直接开始")
     ap.add_argument("--install", action="store_true", help=u"装环境")
     ap.add_argument("--tts", action="store_true", help=u"出旁白")
     ap.add_argument("--trial", action="store_true", help=u"只跑前 3 段")
@@ -159,6 +164,8 @@ def main():
 
     if a.check:
         rc = envcheck.run(cfg)
+    elif a.setup:
+        rc = setup.run(cfg, cpu=a.cpu, mirror=not a.no_mirror, yes=a.yes)
     elif a.install:
         rc = installer.run(cfg, cpu=a.cpu, mirror=not a.no_mirror)
         if rc == 0:

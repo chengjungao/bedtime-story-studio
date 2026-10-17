@@ -178,6 +178,16 @@ def resolve_python(cfg):
 _TORCH_CACHE = {}
 
 
+def forget_torch_cache():
+    """清掉 has_torch 的缓存。装完环境必须调一次。
+
+    装之前问过「这个解释器有 torch 吗」，答案是没有，被缓存住了；装完再问
+    还是「没有」，于是刚装好的环境被判成没装。这个错不抛异常，只让结论
+    永远错，所以装完必须显式清一遍。
+    """
+    _TORCH_CACHE.clear()
+
+
 def has_torch(exe):
     """问那个解释器「你装没装 torch」。带缓存，同一进程只问一次。"""
     if exe in _TORCH_CACHE:
