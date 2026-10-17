@@ -38,7 +38,7 @@ from . import envcheck, installer, project, ui
 # 下载量与磁盘占用，都是这台机器上量过的，不是估的
 GB_SOURCE = 0.05      # CosyVoice 源码，约 50 MB
 GB_TORCH = 2.5        # PyTorch 2.4.0 cu121：下载 2.4 GB，取 2.5 留余量
-GB_DEPS = 1.2         # 推理依赖 + openai-whisper
+GB_DEPS = 1.1         # 推理依赖 + openai-whisper
 GB_BLANKEN = 0.92     # 模型里的 CosyVoice-BlankEN，实测 946.31 MB
 GB_ON_DISK = 11.0     # 整套环境装完约占 11 GB
 
