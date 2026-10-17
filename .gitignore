@@ -1,0 +1,24 @@
+# 运行时会自动生成的东西，不要进仓库
+.venv/
+CosyVoice/
+我的故事/
+__pycache__/
+*.pyc
+
+# 本机配置：解释器在哪、CosyVoice 装哪了。
+# config.json 是模板，进仓库；这一份是这台机器的实际情况，不进。
+config.local.json
+
+# 模型与音频体积太大
+*.wav
+*.mp3
+*.m4a
+*.pt
+*.onnx
+*.safetensors
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

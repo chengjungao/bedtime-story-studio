@@ -1,0 +1,37 @@
+# 本项目的依赖清单（不是上游那份原样）
+#
+# 与上游 requirements.txt 的三处差别，每一处都有原因：
+#   1. 没有 torch / torchaudio —— 由安装器单独锁 2.4.0
+#      上游锁的是 2.3.1，那个版本的 Windows 轮子漏打包了整套 MKL：
+#      import 能过、CUDA 能过，可一旦跑 CPU 的 svd / inv 就静默打死整个进程
+#      （退出码 0xC06D007E），同一份文件跑两次还可能不同结果。
+#      2.4.0 的 torch_cpu.dll 导入表里一个 mkl 都没有，已验证。
+#   2. 没有 tensorboard —— 它要求 protobuf<4.24，与本清单的 4.25 直接互斥，
+#      留着 pip 必然 ResolutionImpossible。而它只被训练脚本用，推理路径不进。
+#   3. 没有 openai-whisper —— 它是源码包，安装器单独用 --no-build-isolation 装
+#      （cosyvoice/cli/frontend.py 第一行就 import whisper，缺了加载不了模型）。
+#
+# 另外把 networkx 的版本松开了：锁 3.1 会让 pip 先卸载已有的新版再装，
+# 白折腾一遍。它在这里只是间接依赖，3.x 任意版本都够用。
+conformer==0.3.2
+deepspeed==0.15.1; sys_platform == 'linux'
+diffusers==0.29.0
+huggingface_hub
+hydra-core==1.3.2
+HyperPyYAML==1.2.3
+inflect==7.3.1
+librosa==0.10.2
+modelscope==1.20.0
+networkx
+numpy==1.26.4
+omegaconf==2.3.0
+onnx==1.16.0
+onnxruntime==1.18.0
+protobuf==4.25
+pyworld==0.3.4
+rich==13.7.1
+soundfile==0.12.1
+transformers==4.51.3
+x-transformers==2.11.24
+wetext==0.0.4
+wget==3.2

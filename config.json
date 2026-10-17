@@ -1,0 +1,16 @@
+{
+  "project": "",
+  "python": "",
+  "cosyvoice_dir": "",
+  "model_dir": "",
+  "speed": 0.85,
+  "fp16": true,
+  "lead": 2.0,
+  "tail": 6.0,
+  "narration_db": -22.0,
+  "bed_below_db": 24.0,
+  "fade_in": 0.3,
+  "fade_out": 5.0,
+  "limiter": 0.97,
+  "sample_rate": 44100
+}

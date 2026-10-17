@@ -1,0 +1,17 @@
+# 默认：文本一律 LF
+* text=auto eol=lf
+
+# .bat / .cmd 必须 CRLF：cmd 对 LF-only 的批处理在 goto / label 上偶有怪异行为
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# shell 脚本必须 LF，否则在 macOS / Linux 上跑不起来
+*.sh text eol=lf
+
+# 图片与媒体按二进制处理
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.wav binary
+*.mp3 binary
+*.m4a binary
